@@ -1,3 +1,47 @@
-x <- 55
-y <- x + 5
-ECRIRE y
+algorithm Calculator
+var
+    num1, num2: integer;
+    operation: integer;
+    answer: integer;
+begin
+    write("Simple Calculator");
+    write("1. Addition");
+    write("2. Subtraction");
+    write("3. Multiplication");
+    write("4. Division");
+    write("Enter choice (1-4): ");
+    read(operation);
+    
+    write("Enter first number: ");
+    read(num1);
+    write("Enter second number: ");
+    read(num2);
+    
+    if operation = 1 then
+        answer := num1 + num2;
+        write("Result: ");
+        write(answer);
+    endif
+    
+    if operation = 2 then
+        answer := num1 - num2;
+        write("Result: ");
+        write(answer);
+    endif
+    
+    if operation = 3 then
+        answer := num1 * num2;
+        write("Result: ");
+        write(answer);
+    endif
+    
+    if operation = 4 then
+        if num2 <> 0 then
+            answer := num1 DIV num2;
+            write("Result: ");
+            write(answer);
+        else
+            write("Error: Division by zero!");
+        endif
+    endif
+end.

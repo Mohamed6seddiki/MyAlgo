@@ -4,26 +4,80 @@
 #include <string>
 
 enum class TokenType {
-
     END_OF_FILE,
 
     // Identifiers & literals
     IDENTIFIER,
     NUMBER,
 
-    // Keywords
-    WRITE,       // ECRIRE
+    // Keywords - Program structure
+    ALGORITHM,    // algorithm
+    VAR,          // var
+    BEGIN,        // begin
+    END,          // end
 
-    // Operators
-    ASSIGN,       // <-
+    // Keywords - Data types
+    INTEGER,      // integer
+    REAL,         // real
+    BOOLEAN,      // boolean
+    STRING,         // String 
+    
+    // Keywords - I/O
+    READ,         // read
+    WRITE,        // write
+
+    // Keywords - Control flow
+    IF,           // if
+    THEN,         // then
+    ENDIF,        // endif
+    FOR,          // for
+    FROM,         // from
+    TO,           // to
+    DO,           // do
+    ENDFOR,       // endfor
+    WHILE,        // while
+    ENDWHILE,     // endwhile
+    REPEAT,       // repeat
+    UNTIL,        // until
+    ELSE,         // else
+
+    // Keywords - Boolean literals
+    TRUE,         // true
+    FALSE,        // false
+
+    // Keywords - Logical operators
+    OR,           // or
+    AND,          // and
+    NOT,          // not
+
+    // Keywords - Arithmetic operators
+    DIV,          // DIV (integer division)
+    MOD,          // MOD (modulo)
+
+    // Operators - Assignment
+    ASSIGN,       // :=
+
+    // Operators - Arithmetic
     PLUS,         // +
     MINUS,        // -
     MULTIPLY,     // *
     DIVIDE,       // /
 
+    // Operators - Relational
+    EQUAL,        // =
+    NOT_EQUAL,    // <>
+    LESS,         // <
+    GREATER,      // >
+    LESS_EQUAL,   // <=
+    GREATER_EQUAL,// >=
+
     // Symbols
     LPAREN,       // (
-    RPAREN        // )
+    RPAREN,       // )
+    COMMA,        // ,
+    COLON,        // :
+    SEMICOLON,    // ;
+    PERIOD        // .
 };
 
 struct Token {
@@ -35,12 +89,3 @@ struct Token {
 };
 
 #endif
-
-//x <- 10
-
-/*
-Token(IDENTIFIER, "x")
-Token(ASSIGN, "<-")
-Token(NUMBER, "10")
-
-*/
