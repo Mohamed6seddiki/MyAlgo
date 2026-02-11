@@ -1,0 +1,263 @@
+algorithm Ex14_DatabaseSystem
+var
+    id1, id2, id3, id4, id5: integer;
+    name1, name2, name3, name4, name5: string;
+    age1, age2, age3, age4, age5: integer;
+    salary1, salary2, salary3, salary4, salary5: real;
+    recordCount: integer;
+    choice, searchId: integer;
+    found: boolean;
+    i: integer;
+
+procedure addRecord(var id: integer, var name: string, var age: integer, var salary: real, recNum: integer)
+beginprocedure
+    write("Enter ID for record ");
+    write(recNum);
+    write(":");
+    read(id);
+    write("Enter Name:");
+    read(name);
+    write("Enter Age:");
+    read(age);
+    write("Enter Salary:");
+    read(salary);
+    write("Record added successfully!");
+endprocedure
+
+procedure printRecord(id: integer, name: string, age: integer, salary: real)
+beginprocedure
+    write("----------------------");
+    write("ID: ");
+    write(id);
+    write("Name: ");
+    write(name);
+    write("Age: ");
+    write(age);
+    write("Salary: $");
+    write(salary);
+    write("----------------------");
+endprocedure
+
+function findRecordById(searchId: integer): integer
+beginfunction
+    if id1 = searchId then return 1; endif;
+    if id2 = searchId then return 2; endif;
+    if id3 = searchId then return 3; endif;
+    if id4 = searchId then return 4; endif;
+    if id5 = searchId then return 5; endif;
+    return 0;
+endfunction
+
+procedure deleteRecord(recordNum: integer)
+beginprocedure
+    if recordNum = 1 then
+        id1 := 0; name1 := ""; age1 := 0; salary1 := 0.0;
+    else
+        if recordNum = 2 then
+            id2 := 0; name2 := ""; age2 := 0; salary2 := 0.0;
+        else
+            if recordNum = 3 then
+                id3 := 0; name3 := ""; age3 := 0; salary3 := 0.0;
+            else
+                if recordNum = 4 then
+                    id4 := 0; name4 := ""; age4 := 0; salary4 := 0.0;
+                else
+                    if recordNum = 5 then
+                        id5 := 0; name5 := ""; age5 := 0; salary5 := 0.0;
+                    endif
+                endif
+            endif
+        endif
+    endif;
+    recordCount := recordCount - 1;
+    write("Record deleted successfully!");
+endprocedure
+
+function calculateAverageSalary(): real
+var
+    sum: real;
+    count: integer;
+beginfunction
+    sum := 0.0;
+    count := 0;
+    
+    if id1 <> 0 then sum := sum + salary1; count := count + 1; endif;
+    if id2 <> 0 then sum := sum + salary2; count := count + 1; endif;
+    if id3 <> 0 then sum := sum + salary3; count := count + 1; endif;
+    if id4 <> 0 then sum := sum + salary4; count := count + 1; endif;
+    if id5 <> 0 then sum := sum + salary5; count := count + 1; endif;
+    
+    if count > 0 then
+        return sum / count;
+    else
+        return 0.0;
+    endif
+endfunction
+
+function calculateAverageAge(): real
+var
+    sum: integer;
+    count: integer;
+beginfunction
+    sum := 0;
+    count := 0;
+    
+    if id1 <> 0 then sum := sum + age1; count := count + 1; endif;
+    if id2 <> 0 then sum := sum + age2; count := count + 1; endif;
+    if id3 <> 0 then sum := sum + age3; count := count + 1; endif;
+    if id4 <> 0 then sum := sum + age4; count := count + 1; endif;
+    if id5 <> 0 then sum := sum + age5; count := count + 1; endif;
+    
+    if count > 0 then
+        return sum / count;
+    else
+        return 0.0;
+    endif
+endfunction
+
+procedure printAllRecords()
+beginprocedure
+    write("===== ALL RECORDS =====");
+    write("Total Records: ");
+    write(recordCount);
+    write("");
+    
+    if id1 <> 0 then printRecord(id1, name1, age1, salary1); endif;
+    if id2 <> 0 then printRecord(id2, name2, age2, salary2); endif;
+    if id3 <> 0 then printRecord(id3, name3, age3, salary3); endif;
+    if id4 <> 0 then printRecord(id4, name4, age4, salary4); endif;
+    if id5 <> 0 then printRecord(id5, name5, age5, salary5); endif;
+    
+    if recordCount > 0 then
+        write("");
+        write("Statistics:");
+        write("Average Age: ");
+        write(calculateAverageAge());
+        write("Average Salary: $");
+        write(calculateAverageSalary());
+    endif;
+    write("=======================");
+endprocedure
+
+begin
+    id1 := 0; id2 := 0; id3 := 0; id4 := 0; id5 := 0;
+    name1 := ""; name2 := ""; name3 := ""; name4 := ""; name5 := "";
+    age1 := 0; age2 := 0; age3 := 0; age4 := 0; age5 := 0;
+    salary1 := 0.0; salary2 := 0.0; salary3 := 0.0; salary4 := 0.0; salary5 := 0.0;
+    recordCount := 0;
+    choice := 0;
+    
+    while choice <> 7 do
+        write("");
+        write("===== DATABASE MANAGEMENT SYSTEM =====");
+        write("1. Add Record");
+        write("2. View All Records");
+        write("3. Search Record by ID");
+        write("4. Delete Record");
+        write("5. Statistics");
+        write("6. Clear All Records");
+        write("7. Exit");
+        write("======================================");
+        write("Enter your choice:");
+        read(choice);
+        
+        if choice = 1 then
+            if recordCount < 5 then
+                recordCount := recordCount + 1;
+                if id1 = 0 then
+                    addRecord(id1, name1, age1, salary1, 1);
+                else
+                    if id2 = 0 then
+                        addRecord(id2, name2, age2, salary2, 2);
+                    else
+                        if id3 = 0 then
+                            addRecord(id3, name3, age3, salary3, 3);
+                        else
+                            if id4 = 0 then
+                                addRecord(id4, name4, age4, salary4, 4);
+                            else
+                                if id5 = 0 then
+                                    addRecord(id5, name5, age5, salary5, 5);
+                                else
+                                    write("Database is full! Maximum 5 records.");
+                                    recordCount := recordCount - 1;
+                                endif
+                            endif
+                        endif
+                    endif
+                endif
+            else
+                write("Database is full! Maximum 5 records.");
+            endif
+        else
+            if choice = 2 then
+                printAllRecords();
+            else
+                if choice = 3 then
+                    write("Enter ID to search:");
+                    read(searchId);
+                    i := findRecordById(searchId);
+                    if i > 0 then
+                        write("Record found:");
+                        if i = 1 then printRecord(id1, name1, age1, salary1); endif;
+                        if i = 2 then printRecord(id2, name2, age2, salary2); endif;
+                        if i = 3 then printRecord(id3, name3, age3, salary3); endif;
+                        if i = 4 then printRecord(id4, name4, age4, salary4); endif;
+                        if i = 5 then printRecord(id5, name5, age5, salary5); endif;
+                    else
+                        write("Record not found with ID: ");
+                        write(searchId);
+                    endif
+                else
+                    if choice = 4 then
+                        write("Enter ID to delete:");
+                        read(searchId);
+                        i := findRecordById(searchId);
+                        if i > 0 then
+                            deleteRecord(i);
+                        else
+                            write("Record not found with ID: ");
+                            write(searchId);
+                        endif
+                    else
+                        if choice = 5 then
+                            write("===== DATABASE STATISTICS =====");
+                            write("Total Records: ");
+                            write(recordCount);
+                            write("Maximum Capacity: 5");
+                            write("Available Slots: ");
+                            write(5 - recordCount);
+                            if recordCount > 0 then
+                                write("Average Age: ");
+                                write(calculateAverageAge());
+                                write("Average Salary: $");
+                                write(calculateAverageSalary());
+                                write("Salary Range: $");
+                                write(calculateAverageSalary() * 0.8);
+                                write(" - $");
+                                write(calculateAverageSalary() * 1.2);
+                            endif;
+                            write("===============================");
+                        else
+                            if choice = 6 then
+                                id1 := 0; name1 := ""; age1 := 0; salary1 := 0.0;
+                                id2 := 0; name2 := ""; age2 := 0; salary2 := 0.0;
+                                id3 := 0; name3 := ""; age3 := 0; salary3 := 0.0;
+                                id4 := 0; name4 := ""; age4 := 0; salary4 := 0.0;
+                                id5 := 0; name5 := ""; age5 := 0; salary5 := 0.0;
+                                recordCount := 0;
+                                write("All records cleared!");
+                            else
+                                if choice = 7 then
+                                    write("Thank you for using the Database System!");
+                                else
+                                    write("Invalid choice! Please try again.");
+                                endif
+                            endif
+                        endif
+                    endif
+                endif
+            endif
+        endif
+    endwhile
+end.

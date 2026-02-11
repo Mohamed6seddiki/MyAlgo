@@ -9,19 +9,31 @@ enum class TokenType {
     // Identifiers & literals
     IDENTIFIER,
     NUMBER,
+    STRING,         // String literal
 
     // Keywords - Program structure
     ALGORITHM,    // algorithm
     VAR,          // var
     BEGIN,        // begin
     END,          // end
+    
+    // Keywords - Functions & Procedures
+    FUNCTION,     // function
+    PROCEDURE,    // procedure
+    BEGINFUNCTION,  // beginfunction  <-- NEW
+    BEGINPROCEDURE, // beginprocedure <-- NEW
+    ENDFUNCTION,  // endfunction
+    ENDPROCEDURE, // endprocedure
+    RETURN,       // return
 
     // Keywords - Data types
     INTEGER,      // integer
     REAL,         // real
     BOOLEAN,      // boolean
-    STRING,         // String 
-    
+    STRING_TYPE,  // string
+    ARRAY,        // array
+    OF,           // of
+
     // Keywords - I/O
     READ,         // read
     WRITE,        // write
@@ -74,6 +86,8 @@ enum class TokenType {
     // Symbols
     LPAREN,       // (
     RPAREN,       // )
+    LBRACKET,     // [
+    RBRACKET,     // ]
     COMMA,        // ,
     COLON,        // :
     SEMICOLON,    // ;

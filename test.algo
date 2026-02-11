@@ -1,47 +1,204 @@
-algorithm Calculator
+algorithm Ex11_BankingSystem
 var
-    num1, num2: integer;
-    operation: integer;
-    answer: integer;
-begin
-    write("Simple Calculator");
-    write("1. Addition");
-    write("2. Subtraction");
-    write("3. Multiplication");
-    write("4. Division");
-    write("Enter choice (1-4): ");
-    read(operation);
-    
-    write("Enter first number: ");
-    read(num1);
-    write("Enter second number: ");
-    read(num2);
-    
-    if operation = 1 then
-        answer := num1 + num2;
-        write("Result: ");
-        write(answer);
+    account1, account2: real;
+    acc1Name, acc2Name: string;
+    choice: integer;
+    amount: real;
+
+procedure createAccount(var name: string, var balance: real)
+beginprocedure
+    write("Enter account holder name:");
+    read(name);
+    balance := 0.0;
+    write("Account created for ");
+    write(name);
+    write(" with initial balance 0.0");
+endprocedure
+
+procedure deposit(var balance: real, amount: real)
+beginprocedure
+    if amount > 0 then
+        balance := balance + amount;
+        write("Deposited: ");
+        write(amount);
+        write("New balance: ");
+        write(balance);
+    else
+        write("Invalid deposit amount!");
     endif
-    
-    if operation = 2 then
-        answer := num1 - num2;
-        write("Result: ");
-        write(answer);
-    endif
-    
-    if operation = 3 then
-        answer := num1 * num2;
-        write("Result: ");
-        write(answer);
-    endif
-    
-    if operation = 4 then
-        if num2 <> 0 then
-            answer := num1 DIV num2;
-            write("Result: ");
-            write(answer);
+endprocedure
+
+procedure withdraw(var balance: real, amount: real)
+beginprocedure
+    if amount <= 0 then
+        write("Invalid withdrawal amount!");
+    else
+        if amount <= balance then
+            balance := balance - amount;
+            write("Withdrawn: ");
+            write(amount);
+            write("New balance: ");
+            write(balance);
         else
-            write("Error: Division by zero!");
+            write("Insufficient funds!");
+            write("Current balance: ");
+            write(balance);
         endif
     endif
+endprocedure
+
+procedure transfer(var fromBalance: real, var toBalance: real, amount: real, fromName: string, toName: string)
+beginprocedure
+    if amount <= 0 then
+        write("Invalid transfer amount!");
+    else
+        if amount <= fromBalance then
+            fromBalance := fromBalance - amount;
+            toBalance := toBalance + amount;
+            write("Transferred: ");
+            write(amount);
+            write("From: ");
+            write(fromName);
+            write("To: ");
+            write(toName);
+            write(fromName);
+            write(" new balance: ");
+            write(fromBalance);
+            write(toName);
+            write(" new balance: ");
+            write(toBalance);
+        else
+            write("Insufficient funds for transfer!");
+            write(fromName);
+            write(" balance: ");
+            write(fromBalance);
+        endif
+    endif
+endprocedure
+
+procedure printBalance(name: string, balance: real)
+beginprocedure
+    write("Account: ");
+    write(name);
+    write("Balance: $");
+    write(balance);
+endprocedure
+
+procedure printMenu()
+beginprocedure
+    write("===== BANKING SYSTEM =====");
+    write("1. Create Account 1");
+    write("2. Create Account 2");
+    write("3. Deposit to Account 1");
+    write("4. Deposit to Account 2");
+    write("5. Withdraw from Account 1");
+    write("6. Withdraw from Account 2");
+    write("7. Transfer Account 1 -> Account 2");
+    write("8. Transfer Account 2 -> Account 1");
+    write("9. View Balances");
+    write("10. Exit");
+    write("===========================");
+endprocedure
+
+begin
+    account1 := 0.0;
+    account2 := 0.0;
+    acc1Name := "";
+    acc2Name := "";
+    choice := 0;
+    
+    while choice <> 10 do
+        printMenu();
+        write("Enter your choice:");
+        read(choice);
+        
+        if choice = 1 then
+            createAccount(acc1Name, account1);
+        else
+            if choice = 2 then
+                createAccount(acc2Name, account2);
+            else
+                if choice = 3 then
+                    if acc1Name <> "" then
+                        write("Enter deposit amount:");
+                        read(amount);
+                        deposit(account1, amount);
+                    else
+                        write("Account 1 not created yet!");
+                    endif
+                else
+                    if choice = 4 then
+                        if acc2Name <> "" then
+                            write("Enter deposit amount:");
+                            read(amount);
+                            deposit(account2, amount);
+                        else
+                            write("Account 2 not created yet!");
+                        endif
+                    else
+                        if choice = 5 then
+                            if acc1Name <> "" then
+                                write("Enter withdrawal amount:");
+                                read(amount);
+                                withdraw(account1, amount);
+                            else
+                                write("Account 1 not created yet!");
+                            endif
+                        else
+                            if choice = 6 then
+                                if acc2Name <> "" then
+                                    write("Enter withdrawal amount:");
+                                    read(amount);
+                                    withdraw(account2, amount);
+                                else
+                                    write("Account 2 not created yet!");
+                                endif
+                            else
+                                if choice = 7 then
+                                    if acc1Name <> "" and acc2Name <> "" then
+                                        write("Enter transfer amount:");
+                                        read(amount);
+                                        transfer(account1, account2, amount, acc1Name, acc2Name);
+                                    else
+                                        write("Both accounts must be created first!");
+                                    endif
+                                else
+                                    if choice = 8 then
+                                        if acc1Name <> "" and acc2Name <> "" then
+                                            write("Enter transfer amount:");
+                                            read(amount);
+                                            transfer(account2, account1, amount, acc2Name, acc1Name);
+                                        else
+                                            write("Both accounts must be created first!");
+                                        endif
+                                    else
+                                        if choice = 9 then
+                                            write("===== CURRENT BALANCES =====");
+                                            if acc1Name <> "" then
+                                                printBalance(acc1Name, account1);
+                                            else
+                                                write("Account 1: Not created");
+                                            endif;
+                                            if acc2Name <> "" then
+                                                printBalance(acc2Name, account2);
+                                            else
+                                                write("Account 2: Not created");
+                                            endif;
+                                            write("============================");
+                                        else
+                                            if choice = 10 then
+                                                write("Thank you for using our banking system!");
+                                            else
+                                                write("Invalid choice! Please try again.");
+                                            endif
+                                        endif
+                                    endif
+                                endif
+                            endif
+                        endif
+                    endif
+                endif
+            endif
+        endif
+    endwhile
 end.

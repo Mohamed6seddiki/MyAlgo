@@ -1,0 +1,217 @@
+algorithm Ex12_GradeManagementSystem
+var
+    student1, student2, student3: string;
+    grade1, grade2, grade3: integer;
+    score1, score2, score3: integer;
+    avgGrade, avgScore: real;
+    i, choice: integer;
+    searchName: string;
+    found: boolean;
+
+procedure addStudent(var name: string, var grade: integer, var score: integer, studentNum: integer)
+beginprocedure
+    write("Enter name for student ");
+    write(studentNum);
+    write(":");
+    read(name);
+    write("Enter grade (1-12) for ");
+    write(name);
+    write(":");
+    read(grade);
+    write("Enter test score (0-100) for ");
+    write(name);
+    write(":");
+    read(score);
+    write("Student added successfully!");
+endprocedure
+
+function calculateAverageScore(s1: integer, s2: integer, s3: integer): real
+var
+    sum: integer;
+beginfunction
+    sum := s1 + s2 + s3;
+    return sum / 3.0;
+endfunction
+
+function calculateAverageGrade(g1: integer, g2: integer, g3: integer): real
+var
+    sum: integer;
+beginfunction
+    sum := g1 + g2 + g3;
+    return sum / 3.0;
+endfunction
+
+function getLetterGrade(score: integer): string
+beginfunction
+    if score >= 90 then
+        return "A";
+    else
+        if score >= 80 then
+            return "B";
+        else
+            if score >= 70 then
+                return "C";
+            else
+                if score >= 60 then
+                    return "D";
+                else
+                    return "F";
+                endif
+            endif
+        endif
+    endif
+endfunction
+
+procedure printStudentInfo(name: string, grade: integer, score: integer)
+var
+    letterGrade: string;
+beginprocedure
+    write("---------------------");
+    write("Name: ");
+    write(name);
+    write("Grade: ");
+    write(grade);
+    write("Score: ");
+    write(score);
+    letterGrade := getLetterGrade(score);
+    write("Letter Grade: ");
+    write(letterGrade);
+    write("---------------------");
+endprocedure
+
+procedure printClassSummary()
+beginprocedure
+    write("===== CLASS SUMMARY =====");
+    write("Total Students: 3");
+    write("Average Score: ");
+    write(avgScore);
+    write("Average Grade Level: ");
+    write(avgGrade);
+    write("========================");
+endprocedure
+
+procedure findStudent(search: string)
+beginprocedure
+    found := false;
+    
+    if student1 = search then
+        printStudentInfo(student1, grade1, score1);
+        found := true;
+    endif;
+    
+    if student2 = search then
+        printStudentInfo(student2, grade2, score2);
+        found := true;
+    endif;
+    
+    if student3 = search then
+        printStudentInfo(student3, grade3, score3);
+        found := true;
+    endif;
+    
+    if not found then
+        write("Student not found: ");
+        write(search);
+    endif
+endprocedure
+
+procedure sortStudents()
+var
+    tempName: string;
+    tempGrade, tempScore: integer;
+beginprocedure
+    if score1 < score2 then
+        tempName := student1; tempGrade := grade1; tempScore := score1;
+        student1 := student2; grade1 := grade2; score1 := score2;
+        student2 := tempName; grade2 := tempGrade; score2 := tempScore;
+    endif;
+    
+    if score1 < score3 then
+        tempName := student1; tempGrade := grade1; tempScore := score1;
+        student1 := student3; grade1 := grade3; score1 := score3;
+        student3 := tempName; grade3 := tempGrade; score3 := tempScore;
+    endif;
+    
+    if score2 < score3 then
+        tempName := student2; tempGrade := grade2; tempScore := score2;
+        student2 := student3; grade2 := grade3; score2 := score3;
+        student3 := tempName; grade3 := tempGrade; score3 := tempScore;
+    endif;
+    
+    write("Students sorted by score (highest to lowest)!");
+endprocedure
+
+begin
+    student1 := ""; student2 := ""; student3 := "";
+    grade1 := 0; grade2 := 0; grade3 := 0;
+    score1 := 0; score2 := 0; score3 := 0;
+    choice := 0;
+    
+    while choice <> 7 do
+        write("");
+        write("===== STUDENT GRADE MANAGEMENT SYSTEM =====");
+        write("1. Add Student 1");
+        write("2. Add Student 2");
+        write("3. Add Student 3");
+        write("4. View All Students");
+        write("5. Find Student");
+        write("6. Sort Students by Score");
+        write("7. Exit");
+        write("==========================================");
+        write("Enter your choice:");
+        read(choice);
+        
+        if choice = 1 then
+            addStudent(student1, grade1, score1, 1);
+        else
+            if choice = 2 then
+                addStudent(student2, grade2, score2, 2);
+            else
+                if choice = 3 then
+                    addStudent(student3, grade3, score3, 3);
+                else
+                    if choice = 4 then
+                        write("===== ALL STUDENTS =====");
+                        if student1 <> "" then
+                            printStudentInfo(student1, grade1, score1);
+                        endif;
+                        if student2 <> "" then
+                            printStudentInfo(student2, grade2, score2);
+                        endif;
+                        if student3 <> "" then
+                            printStudentInfo(student3, grade3, score3);
+                        endif;
+                        
+                        if student1 <> "" and student2 <> "" and student3 <> "" then
+                            avgScore := calculateAverageScore(score1, score2, score3);
+                            avgGrade := calculateAverageGrade(grade1, grade2, grade3);
+                            printClassSummary();
+                        else
+                            write("Not all students have been added yet!");
+                        endif
+                    else
+                        if choice = 5 then
+                            write("Enter student name to search:");
+                            read(searchName);
+                            findStudent(searchName);
+                        else
+                            if choice = 6 then
+                                if student1 <> "" and student2 <> "" and student3 <> "" then
+                                    sortStudents();
+                                else
+                                    write("Need all 3 students to sort!");
+                                endif
+                            else
+                                if choice = 7 then
+                                    write("Thank you for using the Grade Management System!");
+                                else
+                                    write("Invalid choice! Please try again.");
+                                endif
+                            endif
+                        endif
+                    endif
+                endif
+            endif
+        endif
+    endwhile
+end.

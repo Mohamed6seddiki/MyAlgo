@@ -1,4 +1,3 @@
-// AST.hpp
 #ifndef AST_HPP
 #define AST_HPP
 
@@ -9,24 +8,30 @@
 // Forward declarations
 class ASTNode;
 class AlgorithmNode;
+class FunctionNode;
+class ProcedureNode;
+class ParameterNode;
 class VarDeclNode;
 class StatementNode;
 class BlockNode;
 class AssignmentNode;
+class ReturnStatementNode;
 class IfStatementNode;
 class ForStatementNode;
 class WhileStatementNode;
 class RepeatStatementNode;
 class ReadStatementNode;
 class WriteStatementNode;
+class ExpressionStatementNode;
 class ExpressionNode;
 class BinaryOpNode;
 class UnaryOpNode;
 class VariableNode;
 class NumberNode;
 class BooleanNode;
-class StringNode;  // ADDED
+class StringNode;
 class CallNode;
+class ArrayAccessNode;
 
 // Base class for all AST nodes
 class ASTNode {
@@ -34,17 +39,66 @@ public:
     virtual ~ASTNode() = default;
 };
 
+// Parameter declaration
+class ParameterNode : public ASTNode {
+public:
+    std::string name;
+    std::string typeName;
+    bool isReference;  // For var parameters (pass by reference)
+    
+    ParameterNode(const std::string& name, const std::string& typeName, bool isReference = false)
+        : name(name), typeName(typeName), isReference(isReference) {}
+};
+
+// Function definition
+class FunctionNode : public ASTNode {
+public:
+    std::string name;
+    std::vector<std::shared_ptr<ParameterNode>> parameters;
+    std::string returnType;
+    std::vector<std::shared_ptr<VarDeclNode>> variables;
+    std::shared_ptr<BlockNode> body;
+    
+    FunctionNode(const std::string& name,
+                 const std::vector<std::shared_ptr<ParameterNode>>& parameters,
+                 const std::string& returnType,
+                 const std::vector<std::shared_ptr<VarDeclNode>>& variables,
+                 const std::shared_ptr<BlockNode>& body)
+        : name(name), parameters(parameters), returnType(returnType),
+          variables(variables), body(body) {}
+};
+
+// Procedure definition
+class ProcedureNode : public ASTNode {
+public:
+    std::string name;
+    std::vector<std::shared_ptr<ParameterNode>> parameters;
+    std::vector<std::shared_ptr<VarDeclNode>> variables;
+    std::shared_ptr<BlockNode> body;
+    
+    ProcedureNode(const std::string& name,
+                  const std::vector<std::shared_ptr<ParameterNode>>& parameters,
+                  const std::vector<std::shared_ptr<VarDeclNode>>& variables,
+                  const std::shared_ptr<BlockNode>& body)
+        : name(name), parameters(parameters), variables(variables), body(body) {}
+};
+
 // Algorithm definition
 class AlgorithmNode : public ASTNode {
 public:
     std::string name;
     std::vector<std::shared_ptr<VarDeclNode>> variables;
+    std::vector<std::shared_ptr<FunctionNode>> functions;
+    std::vector<std::shared_ptr<ProcedureNode>> procedures;
     std::shared_ptr<BlockNode> body;
     
     AlgorithmNode(const std::string& name, 
                   const std::vector<std::shared_ptr<VarDeclNode>>& variables,
+                  const std::vector<std::shared_ptr<FunctionNode>>& functions,
+                  const std::vector<std::shared_ptr<ProcedureNode>>& procedures,
                   const std::shared_ptr<BlockNode>& body)
-        : name(name), variables(variables), body(body) {}
+        : name(name), variables(variables), functions(functions), 
+          procedures(procedures), body(body) {}
 };
 
 // Variable declaration
@@ -52,9 +106,12 @@ class VarDeclNode : public ASTNode {
 public:
     std::vector<std::string> names;  // Could declare multiple variables at once
     std::string typeName;
+    bool isArray;               // Whether this is an array declaration
+    int arraySize;              // Size of array (if isArray is true)
     
-    VarDeclNode(const std::vector<std::string>& names, const std::string& typeName)
-        : names(names), typeName(typeName) {}
+    VarDeclNode(const std::vector<std::string>& names, const std::string& typeName, 
+                bool isArray = false, int arraySize = 0)
+        : names(names), typeName(typeName), isArray(isArray), arraySize(arraySize) {}
 };
 
 // Base class for statements
@@ -69,15 +126,26 @@ public:
         : statements(statements) {}
 };
 
+// Return statement
+class ReturnStatementNode : public StatementNode {
+public:
+    std::shared_ptr<ExpressionNode> expression;
+    
+    ReturnStatementNode(const std::shared_ptr<ExpressionNode>& expression = nullptr)
+        : expression(expression) {}
+};
+
 // Assignment statement
 class AssignmentNode : public StatementNode {
 public:
     std::string variableName;
     std::shared_ptr<ExpressionNode> expression;
+    std::shared_ptr<ExpressionNode> arrayIndex;  // nullptr if not array assignment
     
     AssignmentNode(const std::string& variableName, 
-                   const std::shared_ptr<ExpressionNode>& expression)
-        : variableName(variableName), expression(expression) {}
+                   const std::shared_ptr<ExpressionNode>& expression,
+                   const std::shared_ptr<ExpressionNode>& arrayIndex = nullptr)
+        : variableName(variableName), expression(expression), arrayIndex(arrayIndex) {}
 };
 
 // If statement
@@ -148,6 +216,15 @@ public:
         : expression(expression) {}
 };
 
+// Expression statement (for procedure calls and other expressions as statements)
+class ExpressionStatementNode : public StatementNode {
+public:
+    std::shared_ptr<ExpressionNode> expression;
+    
+    ExpressionStatementNode(const std::shared_ptr<ExpressionNode>& expression)
+        : expression(expression) {}
+};
+
 // Base class for expressions
 class ExpressionNode : public ASTNode {};
 
@@ -199,7 +276,7 @@ public:
     BooleanNode(bool value) : value(value) {}
 };
 
-// String literal - ADDED
+// String literal
 class StringNode : public ExpressionNode {
 public:
     std::string value;
@@ -216,6 +293,16 @@ public:
     CallNode(const std::string& functionName,
              const std::vector<std::shared_ptr<ExpressionNode>>& arguments = {})
         : functionName(functionName), arguments(arguments) {}
+};
+
+// Array access (indexing)
+class ArrayAccessNode : public ExpressionNode {
+public:
+    std::string arrayName;
+    std::shared_ptr<ExpressionNode> index;
+    
+    ArrayAccessNode(const std::string& arrayName, const std::shared_ptr<ExpressionNode>& index)
+        : arrayName(arrayName), index(index) {}
 };
 
 #endif
