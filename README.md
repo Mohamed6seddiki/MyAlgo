@@ -130,11 +130,10 @@ ECRIRE result
 ## 🔮 Roadmap
 
 - [x] **Lexer** - Tokenize source code
-- [ ] **Parser** - Build Abstract Syntax Tree (AST)
-- [ ] **Interpreter** - Execute instructions from AST
-- [ ] **Conditional Statements** - Add `SI`, `ALORS`, `SINON`
-- [ ] **Loops** - Add `POUR`, `TANTQUE`
-- [ ] **Functions** - Add procedure definitions
+- [x] **Interpreter** - Execute instructions from AST
+- [x] **Conditional Statements** - Add `SI`, `ALORS`, `SINON`
+- [x] **Loops** - Add `POUR`, `TANTQUE`
+- [x] **Functions** - Add procedure definitions
 - [ ] **Error Handling** - Improve error messages and debugging
 - [ ] **Standard Library** - Add built-in functions
 
