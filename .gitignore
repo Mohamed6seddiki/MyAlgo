@@ -66,3 +66,16 @@ testes/*.exe
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# Keep selected release artifacts in git
+!/installer/Output/
+!/installer/Output/*.exe
+
+!/build/
+/build/*
+!/build/Release/
+/build/Release/*
+!/build/Release/myalgo.exe
+
+!/bin/
+/bin/*
