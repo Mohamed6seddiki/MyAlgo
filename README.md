@@ -28,7 +28,7 @@ MyAlgo is designed for learning compiler construction with a real codebase and p
 - Functions and procedures with parameters
 - Pass-by-reference parameters via `var`
 - Statements:
-  - assignment (`:=`)
+  - assignment (`<=`)
   - `if / else / endif`
   - `for / endfor`
   - `while / endwhile`
