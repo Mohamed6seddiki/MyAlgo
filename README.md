@@ -64,7 +64,22 @@ When you run `myalgo <file.algo>`, the tool:
 
 ## Build and run
 
-### Option A: CMake (recommended)
+### Option A: Install from Releases and run in terminal
+
+If you installed MyAlgo from the GitHub Releases installer, you can run programs directly from terminal:
+
+- [Download MyAlgo v1.0](https://github.com/Mohamed6seddiki/MyAlgo/releases/tag/v1.0)
+
+1. Open PowerShell or CMD in the folder that contains your `.algo` file.
+2. Run:
+
+```powershell
+myalgo test.algo
+```
+
+If your file has another name, replace `test.algo` with your file name.
+
+### Option B: CMake (recommended)
 
 ```bash
 cmake -S . -B build
@@ -79,7 +94,7 @@ Run a sample program:
 
 If your generator/config differs, the binary path may be `build/myalgo` or `build/Debug/myalgo.exe`.
 
-### Option B: CMake Presets
+### Option C: CMake Presets
 
 This repository provides presets in `CMakePresets.json`:
 
@@ -131,6 +146,7 @@ MyAlgo/
 ├─ testes/           # Feature tests and generated outputs
 ├─ docs/             # Grammar/spec/roadmap
 └─ installer/        # Inno Setup script and build helper
+└─ build/     
 ```
 
 ## Examples
