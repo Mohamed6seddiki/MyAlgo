@@ -8,6 +8,8 @@
 // Forward declarations
 class ASTNode;
 class AlgorithmNode;
+class StructDeclNode;
+class StructFieldNode;
 class FunctionNode;
 class ProcedureNode;
 class ParameterNode;
@@ -37,6 +39,25 @@ class ArrayAccessNode;
 class ASTNode {
 public:
     virtual ~ASTNode() = default;
+};
+
+class StructFieldNode : public ASTNode {
+public:
+    std::string name;
+    std::string typeName;
+
+    StructFieldNode(const std::string& name, const std::string& typeName)
+        : name(name), typeName(typeName) {}
+};
+
+class StructDeclNode : public ASTNode {
+public:
+    std::string name;
+    std::vector<std::shared_ptr<StructFieldNode>> fields;
+
+    StructDeclNode(const std::string& name,
+                   const std::vector<std::shared_ptr<StructFieldNode>>& fields)
+        : name(name), fields(fields) {}
 };
 
 // Parameter declaration
@@ -87,17 +108,19 @@ public:
 class AlgorithmNode : public ASTNode {
 public:
     std::string name;
+        std::vector<std::shared_ptr<StructDeclNode>> structures;
     std::vector<std::shared_ptr<VarDeclNode>> variables;
     std::vector<std::shared_ptr<FunctionNode>> functions;
     std::vector<std::shared_ptr<ProcedureNode>> procedures;
     std::shared_ptr<BlockNode> body;
     
     AlgorithmNode(const std::string& name, 
+                                    const std::vector<std::shared_ptr<StructDeclNode>>& structures,
                   const std::vector<std::shared_ptr<VarDeclNode>>& variables,
                   const std::vector<std::shared_ptr<FunctionNode>>& functions,
                   const std::vector<std::shared_ptr<ProcedureNode>>& procedures,
                   const std::shared_ptr<BlockNode>& body)
-        : name(name), variables(variables), functions(functions), 
+                : name(name), structures(structures), variables(variables), functions(functions), 
           procedures(procedures), body(body) {}
 };
 
@@ -108,10 +131,13 @@ public:
     std::string typeName;
     bool isArray;               // Whether this is an array declaration
     int arraySize;              // Size of array (if isArray is true)
+    bool isMatrix;              // Whether this is a 2D array declaration
+    int arrayColumns;           // Number of columns (if isMatrix is true)
     
     VarDeclNode(const std::vector<std::string>& names, const std::string& typeName, 
-                bool isArray = false, int arraySize = 0)
-        : names(names), typeName(typeName), isArray(isArray), arraySize(arraySize) {}
+        bool isArray = false, int arraySize = 0, bool isMatrix = false, int arrayColumns = 0)
+    : names(names), typeName(typeName), isArray(isArray), arraySize(arraySize),
+      isMatrix(isMatrix), arrayColumns(arrayColumns) {}
 };
 
 // Base class for statements
@@ -141,11 +167,14 @@ public:
     std::string variableName;
     std::shared_ptr<ExpressionNode> expression;
     std::shared_ptr<ExpressionNode> arrayIndex;  // nullptr if not array assignment
+        std::shared_ptr<ExpressionNode> matrixIndex; // nullptr if not matrix assignment
     
     AssignmentNode(const std::string& variableName, 
                    const std::shared_ptr<ExpressionNode>& expression,
-                   const std::shared_ptr<ExpressionNode>& arrayIndex = nullptr)
-        : variableName(variableName), expression(expression), arrayIndex(arrayIndex) {}
+                                     const std::shared_ptr<ExpressionNode>& arrayIndex = nullptr,
+                                     const std::shared_ptr<ExpressionNode>& matrixIndex = nullptr)
+                : variableName(variableName), expression(expression),
+                    arrayIndex(arrayIndex), matrixIndex(matrixIndex) {}
 };
 
 // If statement
@@ -300,9 +329,11 @@ class ArrayAccessNode : public ExpressionNode {
 public:
     std::string arrayName;
     std::shared_ptr<ExpressionNode> index;
+    std::shared_ptr<ExpressionNode> secondIndex;
     
-    ArrayAccessNode(const std::string& arrayName, const std::shared_ptr<ExpressionNode>& index)
-        : arrayName(arrayName), index(index) {}
+    ArrayAccessNode(const std::string& arrayName, const std::shared_ptr<ExpressionNode>& index,
+                    const std::shared_ptr<ExpressionNode>& secondIndex = nullptr)
+        : arrayName(arrayName), index(index), secondIndex(secondIndex) {}
 };
 
 #endif

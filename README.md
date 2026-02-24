@@ -1,227 +1,212 @@
-# MyAlgo Compiler
+# MyAlgo
 
 ![Version](https://img.shields.io/badge/version-1.0-blue)
-![Language](https://img.shields.io/badge/language-C++-orange)
-![Status](https://img.shields.io/badge/status-Experimental-red)
+![Language](https://img.shields.io/badge/language-C%2B%2B17-orange)
+![Build](https://img.shields.io/badge/build-CMake-success)
+![Status](https://img.shields.io/badge/status-beta-yellow)
 
-**MyAlgo** is an educational programming language interpreter inspired by **university pseudo-code**, designed to help students learn how programming languages work and experiment with building their own language using C++.
+MyAlgo is a Pascal-like educational language and compiler project written in C++.
 
----
+It includes a full front-end and execution pipeline:
 
-## ⚡ Features
+- Lexical analysis
+- Parsing to AST
+- Semantic checks
+- C++ code generation
+- Native execution of generated program
 
-- Fully written in **C++**
-- Syntax similar to **university pseudo-code**
-- Currently supports:
-  - Variables (`IDENTIFIER`)
-  - Arithmetic operations (`+`, `-`, `*`, `/`)
-  - Assignment (`<-`)
-  - Print statement (`ECRIRE`)
-- Interpreter **analyzes code and executes it directly** (no compilation needed)
+## Why this project
 
----
+MyAlgo is designed for learning compiler construction with a real codebase and practical language features (functions, procedures, arrays, matrices, structures, control flow).
 
-## 📝 Example MyAlgo Program
+## Features
 
-**File:** `test.algo`
+- Program model: `algorithm ... begin ... end.`
+- Types: `integer`, `real`, `boolean`, `string`
+- User-defined `structure` declarations
+- 1D arrays and 2D matrices (`array[n]` / `array[r][c] of type`)
+- Functions and procedures with parameters
+- Pass-by-reference parameters via `var`
+- Statements:
+  - assignment (`:=`)
+  - `if / else / endif`
+  - `for / endfor`
+  - `while / endwhile`
+  - `repeat / until`
+  - `read(...)`, `write(...)`, `return`
+- Operators:
+  - arithmetic: `+ - * / div mod`
+  - comparison: `= <> < <= > >=`
+  - logic: `and or not`
+- Comments:
+  - `// single-line`
+  - `# single-line`
+
+## Compilation pipeline
+
+When you run `myalgo <file.algo>`, the tool:
+
+1. Tokenizes source code
+2. Parses source into AST
+3. Performs semantic validation
+4. Generates `<file>.cpp`
+5. Compiles generated C++ using `g++`
+6. Executes the resulting binary
+
+> Important: `myalgo` is built with CMake/MSVC or any C++ compiler, but generated code is currently compiled by invoking `g++` at runtime. Ensure `g++` is available in your `PATH`.
+
+## Requirements
+
+- CMake `>= 3.16`
+- C++17 compiler (MSVC, GCC, or Clang) to build `myalgo`
+- `g++` available in `PATH` for generated `.cpp` compilation step
+- Windows, Linux, or macOS
+
+## Build and run
+
+### Option A: CMake (recommended)
+
+```bash
+cmake -S . -B build
+cmake --build build
+```
+
+Run a sample program:
+
+```bash
+./build/Release/myalgo.exe examples/hello.algo
+```
+
+If your generator/config differs, the binary path may be `build/myalgo` or `build/Debug/myalgo.exe`.
+
+### Option B: CMake Presets
+
+This repository provides presets in `CMakePresets.json`:
+
+```bash
+cmake --preset default
+cmake --build --preset default
+```
+
+## Quick language example
 
 ```algo
-x <- 55
-y <- x + 5
-ECRIRE y
+algorithm Demo
+
+function add(a: integer, b: integer): integer
+beginfunction
+	return a + b;
+endfunction
+
+var
+	x: integer;
+
+begin
+	x := add(4, 5);
+	write(x);
+end.
 ```
 
-**Output (Lexer stage):**
+## Documentation
 
-```
-IDENTIFIER : x
-ASSIGN : <-
-NUMBER : 55
-IDENTIFIER : y
-ASSIGN : <-
-IDENTIFIER : x
-PLUS
-NUMBER : 5
-ECRIRE
-IDENTIFIER : y
-EOF
-```
+- Grammar: [docs/Grammar.md](docs/Grammar.md)
+- Language spec: [docs/languge_spec.md](docs/languge_spec.md)
+- Roadmap: [docs/roadmap.md](docs/roadmap.md)
 
-> **Note:** The current version only includes the Lexer.
+## Repository structure
 
----
-
-## 📋 Requirements
-
-- **Operating System**: Windows, Linux, or macOS
-- **Compiler**: g++ (C++11 or later)
-- **Terminal**: Command Prompt, PowerShell, or Unix shell
-
----
-
-## 🚀 How to Run
-
-### Windows (PowerShell/CMD)
-
-1. Open **Terminal** or **PowerShell** in the project folder
-2. Compile the code:
-   ```bash
-   g++ main.cpp lexer.cpp -o myalgo
-   ```
-3. Run the interpreter with a `.algo` file:
-   ```bash
-   .\myalgo test.algo
-   ```
-
-### Linux / MacOS
-
-1. Open **Terminal** in the project folder
-2. Compile the code:
-   ```bash
-   g++ main.cpp lexer.cpp -o myalgo
-   ```
-3. Run the interpreter with a `.algo` file:
-   ```bash
-   ./myalgo test.algo
-   ```
-
-This will:
-1. Compile `test.algo` to C++ code (`test.cpp`)
-2. Automatically compile the C++ code to an executable (`test.exe` or `test`)
-3. Execute the resulting program
-
----
-
-## 🗺️ Project Structure
-
-```
+```text
 MyAlgo/
-│── token.hpp       # Token definitions
-│── lexer.cpp       # Lexical analyzer (tokenization)
-│── main.cpp        # Entry point (reads file and runs lexer)
-│── test.algo       # Example MyAlgo program
-│── README.md       # Project documentation
+├─ CMakeLists.txt
+├─ CMakePresets.json
+├─ src/
+│  ├─ main.cpp
+│  ├─ core/
+│  ├─ lexer/
+│  ├─ parser/
+│  ├─ semantic/
+│  ├─ codegen/
+│  └─ AST/
+├─ examples/         # Sample .algo programs
+├─ testes/           # Feature tests and generated outputs
+├─ docs/             # Grammar/spec/roadmap
+└─ installer/        # Inno Setup script and build helper
 ```
 
----
+## Examples
 
-## 📚 Syntax Guide
+Sample programs are available in `examples/`:
 
-### Variables and Assignment
-```algo
-x <- 42
-name <- "MyAlgo"
+- `hello.algo`
+- `arithmetic.algo`
+- `if_else.algo`
+- `loop_for.algo`
+- `loop_while.algo`
+- `function_example.algo`
+- `array_sum.algo`
+- `matrix_example.algo`
+- `structure_example.algo`
+- `factorial.algo`
+
+Run any example:
+
+```bash
+./build/Release/myalgo.exe examples/factorial.algo
 ```
 
-### Arithmetic Operations
-```algo
-result <- 10 + 5 * 2
-difference <- x - y
+## Testing
+
+The `testes/` folder contains `.algo` scenario files and generated `.cpp/.exe` outputs used during development.
+
+Run an individual test file:
+
+```bash
+./build/Release/myalgo.exe testes/test_all_features.algo
 ```
 
-### Output
-```algo
-ECRIRE x
-ECRIRE result
+## Known limitations (current)
+
+- Diagnostics do not yet include full line/column-rich reporting in all paths
+- Runtime execution depends on external `g++`
+- No CI workflow committed yet
+
+## Windows installer
+
+An installer setup is included using Inno Setup.
+
+Prerequisite: install Inno Setup 6 (`ISCC.exe`).
+
+Build installer:
+
+```powershell
+cd installer
+.\build-installer.ps1
 ```
 
----
+Output is generated under `installer/Output/`.
 
-## 🔮 Roadmap
+## Contributing
 
-- [x] **Lexer** - Tokenize source code
-- [x] **Interpreter** - Execute instructions from AST
-- [x] **Conditional Statements** - Add `SI`, `ALORS`, `SINON`
-- [x] **Loops** - Add `POUR`, `TANTQUE`
-- [x] **Functions** - Add procedure definitions
-- [ ] **Error Handling** - Improve error messages and debugging
-- [ ] **Standard Library** - Add built-in functions
+Contributions are welcome.
 
----
+1. Fork the repository
+2. Create a branch (`feature/your-feature`)
+3. Add or update tests/examples where relevant
+4. Open a pull request with a clear description
 
-## 💡 Learning Goals
+Suggested contribution areas:
 
-This project is designed to teach:
+- Better semantic diagnostics
+- Additional negative tests (invalid programs)
+- Code generator robustness improvements
+- CI automation
+- Documentation improvements
 
-- How **lexical analysis** (tokenization) works
-- How to build a **parser** and create an Abstract Syntax Tree
-- How **interpreters** execute code
-- The fundamentals of **compiler/interpreter design**
-- Practical **C++ programming** skills
+## Author 👨‍💻
 
----
+**Mohamed Seddiki**
+- 🐙 GitHub: [@Mohamed6seddiki](https://github.com/Mohamed6seddiki)
 
-## 🤝 Contributing
+## License
 
-Contributions are welcome! Here's how you can help:
-
-1. **Fork** the repository
-2. **Create** a feature branch
-   ```bash
-   git checkout -b feature/amazing-feature
-   ```
-3. **Commit** your changes
-   ```bash
-   git commit -m 'Add amazing feature'
-   ```
-4. **Push** to the branch
-   ```bash
-   git push origin feature/amazing-feature
-   ```
-5. **Open** a Pull Request
-
-### Contribution Ideas
-- Add new language features
-- Improve error messages
-- Optimize code generation
-- Write more example programs
-- Enhance documentation
-- Add unit tests
-
----
-
-## 🐛 Known Issues
-
-- String concatenation not yet implemented
-- Function definitions not supported
-- Array indexing not available
-- Limited standard library
-
----
-
-## 📄 License
-
-This project is open-source and available for educational purposes. Feel free to use, modify, and learn from it.
-
----
-
-## 👨‍💻 Author
-
-Created as an educational compiler project to demonstrate:
-- Complete compilation pipeline
-- Language design principles
-- Code generation techniques
-- Software engineering best practices
-
----
-
-## 🙏 Acknowledgments
-
-- Inspired by Pascal and university pseudocode conventions
-- Built with modern C++ practices
-- Designed for educational purposes
-
----
-
-## 📞 Support
-
-**Questions or Issues?**
-- Open an issue on the repository
-- Check the code comments for implementation details
-- Experiment with the code to learn more!
-
----
-
-**Happy Compiling! 🚀**
-
-*Transform pseudocode into reality with MyAlgo*
+This project is licensed under the terms in [LICENSE](LICENSE).

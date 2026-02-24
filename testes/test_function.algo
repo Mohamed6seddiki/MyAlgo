@@ -1,0 +1,16 @@
+algorithm TestFunction
+
+var
+    n, result: integer;
+
+function square(x: integer): integer
+beginfunction
+    return x * x;
+endfunction
+
+begin
+    n := 6;
+    result := square(n);
+    write("square:");
+    write(result);
+end.

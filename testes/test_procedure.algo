@@ -1,0 +1,16 @@
+algorithm TestProcedure
+
+var
+    value: integer;
+
+procedure increment(var x: integer)
+beginprocedure
+    x := x + 1;
+endprocedure
+
+begin
+    value := 10;
+    increment(value);
+    write("value:");
+    write(value);
+end.

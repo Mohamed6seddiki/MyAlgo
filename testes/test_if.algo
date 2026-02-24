@@ -1,0 +1,11 @@
+algorithm TestIf
+var
+    x: integer;
+begin
+    x := 7;
+    if x > 5 then
+        write("x is greater than 5");
+    else
+        write("x is less or equal to 5");
+    endif
+end.

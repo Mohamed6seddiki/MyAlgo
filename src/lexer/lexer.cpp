@@ -4,6 +4,8 @@
 
 void Lexer::initKeywords() {
     keywords["algorithm"] = TokenType::ALGORITHM;
+    keywords["structure"] = TokenType::STRUCTURE;
+    keywords["endstructure"] = TokenType::ENDSTRUCTURE;
     keywords["var"] = TokenType::VAR;
     keywords["begin"] = TokenType::BEGIN;
     keywords["end"] = TokenType::END;
@@ -43,8 +45,8 @@ void Lexer::initKeywords() {
     keywords["or"] = TokenType::OR;
     keywords["and"] = TokenType::AND;
     keywords["not"] = TokenType::NOT;
-    keywords["DIV"] = TokenType::DIV;
-    keywords["MOD"] = TokenType::MOD;
+    keywords["div"] = TokenType::DIV;
+    keywords["mod"] = TokenType::MOD;
 }
 
 void Lexer::advance() {
@@ -104,8 +106,13 @@ Token Lexer::identifier() {
         advance();
     }
 
-    // Check if it's a keyword
-    auto it = keywords.find(value);
+    // Check if it's a keyword (case-insensitive)
+    std::string lowerValue;
+    for (char c : value) {
+        lowerValue += std::tolower(c);
+    }
+    
+    auto it = keywords.find(lowerValue);
     if (it != keywords.end()) {
         return Token(it->second, value);
     }

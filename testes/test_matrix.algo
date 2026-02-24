@@ -1,0 +1,23 @@
+algorithm TestMatrix
+var
+    m: array[2][3] of integer;
+    i, j, sum: integer;
+
+begin
+    m[0][0] := 1;
+    m[0][1] := 2;
+    m[0][2] := 3;
+    m[1][0] := 4;
+    m[1][1] := 5;
+    m[1][2] := 6;
+
+    sum := 0;
+    for i from 0 to 1 do
+        for j from 0 to 2 do
+            sum := sum + m[i][j];
+        endfor
+    endfor
+
+    write("Matrix sum:");
+    write(sum);
+end.

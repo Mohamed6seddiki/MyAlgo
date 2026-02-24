@@ -1,0 +1,18 @@
+algorithm FunctionDemo
+var
+    result: integer;
+
+function Add(x, y: integer): integer
+beginfunction
+    return x + y;
+endfunction
+
+begin
+    result := Add(15, 25);
+    write("result add 15 25:");
+    write(result);
+
+    result := Add(100, 50);
+    write("result add 100 50:");
+    write(result);
+end.

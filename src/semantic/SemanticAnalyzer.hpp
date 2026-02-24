@@ -15,6 +15,7 @@ private:
     std::vector<std::string> errors;
     std::stack<SymbolTable> symbolTableStack;
     std::map<std::string, std::string> functionReturnTypes;  // function name -> return type name
+    std::map<std::string, std::map<std::string, std::string>> structureDefinitions;
     
     void pushScope() {
         symbolTableStack.push(SymbolTable());
@@ -43,6 +44,40 @@ private:
         if (typeName == "boolean") return Type::BOOLEAN;
         if (typeName == "string") return Type::STRING;
         return Type::UNKNOWN;
+    }
+
+    bool isBuiltInTypeName(const std::string& typeName) {
+        return typeName == "integer" || typeName == "real" ||
+               typeName == "boolean" || typeName == "string";
+    }
+
+    bool declareVariableInCurrentScope(const std::string& variableName, const std::string& typeName,
+                                       const std::string& declarationContext, bool isParameter = false) {
+        Type baseType = getTypeFromString(typeName);
+        bool isStructType = structureDefinitions.find(typeName) != structureDefinitions.end();
+
+        if (baseType == Type::UNKNOWN && !isStructType) {
+            addError("Unknown type in " + declarationContext + ": " + typeName);
+            return false;
+        }
+
+        if (!currentScope().declare(variableName, baseType, isParameter)) {
+            addError("Duplicate declaration in " + declarationContext + ": " + variableName);
+            return false;
+        }
+
+        if (isStructType) {
+            const auto& fields = structureDefinitions[typeName];
+            for (const auto& field : fields) {
+                Type fieldType = getTypeFromString(field.second);
+                std::string flattenedFieldName = variableName + "." + field.first;
+                if (!currentScope().declare(flattenedFieldName, fieldType, isParameter)) {
+                    addError("Duplicate field symbol in " + declarationContext + ": " + flattenedFieldName);
+                }
+            }
+        }
+
+        return true;
     }
     
     Type analyzeExpression(const std::shared_ptr<ExpressionNode>& expr) {
@@ -182,6 +217,18 @@ private:
             }
         }
         else if (auto arrayAccess = std::dynamic_pointer_cast<ArrayAccessNode>(expr)) {
+            Type indexType = analyzeExpression(arrayAccess->index);
+            if (indexType != Type::INTEGER) {
+                addError("Array index must be integer: " + arrayAccess->arrayName);
+            }
+
+            if (arrayAccess->secondIndex) {
+                Type secondIndexType = analyzeExpression(arrayAccess->secondIndex);
+                if (secondIndexType != Type::INTEGER) {
+                    addError("Matrix index must be integer: " + arrayAccess->arrayName);
+                }
+            }
+
             // Array access returns the element type
             Type arrayType = Type::UNKNOWN;
             bool found = false;
@@ -254,6 +301,20 @@ private:
             if (!found) {
                 addError("Assignment to undeclared variable: " + assign->variableName);
                 return;
+            }
+
+            if (assign->arrayIndex) {
+                Type indexType = analyzeExpression(assign->arrayIndex);
+                if (indexType != Type::INTEGER) {
+                    addError("Array assignment index must be integer: " + assign->variableName);
+                }
+            }
+
+            if (assign->matrixIndex) {
+                Type matrixIndexType = analyzeExpression(assign->matrixIndex);
+                if (matrixIndexType != Type::INTEGER) {
+                    addError("Matrix assignment index must be integer: " + assign->variableName);
+                }
             }
             
             // Analyze expression
@@ -382,21 +443,17 @@ private:
         
         // Declare parameters
         for (const auto& param : func->parameters) {
-            Type paramType = getTypeFromString(param->typeName);
-            if (!currentScope().declare(param->name, paramType, true)) {
-                addError("Duplicate parameter declaration in function " + func->name + ": " + param->name);
-            }
+            declareVariableInCurrentScope(param->name, param->typeName,
+                                          "function " + func->name + " parameter", true);
             // Parameters are considered initialized
             currentScope().setInitialized(param->name);
         }
         
         // Declare local variables
         for (const auto& varDecl : func->variables) {
-            Type type = getTypeFromString(varDecl->typeName);
             for (const auto& name : varDecl->names) {
-                if (!currentScope().declare(name, type)) {
-                    addError("Duplicate local variable declaration in function " + func->name + ": " + name);
-                }
+                declareVariableInCurrentScope(name, varDecl->typeName,
+                                              "function " + func->name + " local variable");
             }
         }
         
@@ -412,21 +469,17 @@ private:
         
         // Declare parameters
         for (const auto& param : proc->parameters) {
-            Type paramType = getTypeFromString(param->typeName);
-            if (!currentScope().declare(param->name, paramType, true)) {
-                addError("Duplicate parameter declaration in procedure " + proc->name + ": " + param->name);
-            }
+            declareVariableInCurrentScope(param->name, param->typeName,
+                                          "procedure " + proc->name + " parameter", true);
             // Parameters are considered initialized
             currentScope().setInitialized(param->name);
         }
         
         // Declare local variables
         for (const auto& varDecl : proc->variables) {
-            Type type = getTypeFromString(varDecl->typeName);
             for (const auto& name : varDecl->names) {
-                if (!currentScope().declare(name, type)) {
-                    addError("Duplicate local variable declaration in procedure " + proc->name + ": " + name);
-                }
+                declareVariableInCurrentScope(name, varDecl->typeName,
+                                              "procedure " + proc->name + " local variable");
             }
         }
         
@@ -439,14 +492,35 @@ private:
     void analyzeAlgorithm(const std::shared_ptr<AlgorithmNode>& algo) {
         // Create global scope
         pushScope();
+
+        // Register structure definitions
+        for (const auto& structure : algo->structures) {
+            if (structureDefinitions.find(structure->name) != structureDefinitions.end()) {
+                addError("Duplicate structure declaration: " + structure->name);
+                continue;
+            }
+
+            std::map<std::string, std::string> fieldMap;
+            for (const auto& field : structure->fields) {
+                if (!isBuiltInTypeName(field->typeName)) {
+                    addError("Unsupported structure field type in " + structure->name + ": " + field->typeName);
+                    continue;
+                }
+
+                if (fieldMap.find(field->name) != fieldMap.end()) {
+                    addError("Duplicate field '" + field->name + "' in structure " + structure->name);
+                    continue;
+                }
+
+                fieldMap[field->name] = field->typeName;
+            }
+            structureDefinitions[structure->name] = fieldMap;
+        }
         
         // Declare all global variables
         for (const auto& varDecl : algo->variables) {
-            Type type = getTypeFromString(varDecl->typeName);
             for (const auto& name : varDecl->names) {
-                if (!currentScope().declare(name, type)) {
-                    addError("Duplicate global variable declaration: " + name);
-                }
+                declareVariableInCurrentScope(name, varDecl->typeName, "global variable");
             }
         }
         
@@ -471,6 +545,7 @@ public:
     bool analyze(const std::shared_ptr<ASTNode>& ast) {
         errors.clear();
         functionReturnTypes.clear();
+        structureDefinitions.clear();
         
         // Clear any existing symbol tables
         while (!symbolTableStack.empty()) {
@@ -488,7 +563,7 @@ public:
     
     void printErrors() const {
         if (errors.empty()) {
-            std::cout << "No semantic errors found." << std::endl;
+            //std::cout << "No semantic errors found." << std::endl;
         } else {
             std::cout << "Semantic errors found (" << errors.size() << "):" << std::endl;
             for (size_t i = 0; i < errors.size(); i++) {

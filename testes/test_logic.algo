@@ -1,0 +1,13 @@
+algorithm TestLogic
+var
+    a, b: boolean;
+begin
+    a := true;
+    b := false;
+
+    if a and not b then
+        write("logic ok");
+    else
+        write("logic fail");
+    endif
+end.

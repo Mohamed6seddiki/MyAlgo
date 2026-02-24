@@ -1,0 +1,11 @@
+algorithm TestRepeat
+var
+    i: integer;
+begin
+    i := 3;
+    repeat
+        write("i:");
+        write(i);
+        i := i - 1;
+    until i = 0
+end.

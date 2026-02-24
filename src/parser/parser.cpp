@@ -34,9 +34,49 @@ Token Parser::consume(TokenType type, const std::string& message) {
     throw std::runtime_error("Parse error: " + message + " at token '" + peek().value + "'");
 }
 
+std::string Parser::parseTypeName() {
+    if (match(TokenType::INTEGER)) return "integer";
+    if (match(TokenType::REAL)) return "real";
+    if (match(TokenType::BOOLEAN)) return "boolean";
+    if (match(TokenType::STRING_TYPE)) return "string";
+    if (match(TokenType::IDENTIFIER)) return previous().value;
+
+    throw std::runtime_error("Expected type name");
+}
+
+std::shared_ptr<StructDeclNode> Parser::parseStructure() {
+    std::string structName = consume(TokenType::IDENTIFIER, "Expected structure name").value;
+    std::vector<std::shared_ptr<StructFieldNode>> fields;
+
+    while (check(TokenType::IDENTIFIER)) {
+        std::vector<std::string> fieldNames;
+        fieldNames.push_back(consume(TokenType::IDENTIFIER, "Expected field name").value);
+
+        while (match(TokenType::COMMA)) {
+            fieldNames.push_back(consume(TokenType::IDENTIFIER, "Expected field name").value);
+        }
+
+        consume(TokenType::COLON, "Expected ':' after field name(s)");
+        std::string fieldType = parseTypeName();
+        consume(TokenType::SEMICOLON, "Expected ';' after structure field declaration");
+
+        for (const auto& fieldName : fieldNames) {
+            fields.push_back(std::make_shared<StructFieldNode>(fieldName, fieldType));
+        }
+    }
+
+    consume(TokenType::ENDSTRUCTURE, "Expected 'endstructure'");
+    return std::make_shared<StructDeclNode>(structName, fields);
+}
+
 std::shared_ptr<ASTNode> Parser::parseAlgorithm() {
     consume(TokenType::ALGORITHM, "Expected 'algorithm'");
     std::string name = consume(TokenType::IDENTIFIER, "Expected algorithm name").value;
+
+    std::vector<std::shared_ptr<StructDeclNode>> structures;
+    while (match(TokenType::STRUCTURE)) {
+        structures.push_back(parseStructure());
+    }
     
     std::vector<std::shared_ptr<VarDeclNode>> variables;
     std::vector<std::shared_ptr<FunctionNode>> functions;
@@ -54,6 +94,8 @@ std::shared_ptr<ASTNode> Parser::parseAlgorithm() {
             // Check if it's an array type
             bool isArray = false;
             int arraySize = 0;
+            bool isMatrix = false;
+            int arrayColumns = 0;
             
             if (match(TokenType::ARRAY)) {
                 isArray = true;
@@ -61,20 +103,20 @@ std::shared_ptr<ASTNode> Parser::parseAlgorithm() {
                 Token sizeToken = consume(TokenType::NUMBER, "Expected array size");
                 arraySize = std::stoi(sizeToken.value);
                 consume(TokenType::RBRACKET, "Expected ']' after array size");
+
+                if (match(TokenType::LBRACKET)) {
+                    isMatrix = true;
+                    Token colToken = consume(TokenType::NUMBER, "Expected matrix column size");
+                    arrayColumns = std::stoi(colToken.value);
+                    consume(TokenType::RBRACKET, "Expected ']' after matrix column size");
+                }
+
                 consume(TokenType::OF, "Expected 'of' after array declaration");
             }
             
-            Token typeToken = advance();
-            std::string typeName;
-            switch (typeToken.type) {
-                case TokenType::INTEGER: typeName = "integer"; break;
-                case TokenType::REAL: typeName = "real"; break;
-                case TokenType::BOOLEAN: typeName = "boolean"; break;
-                case TokenType::STRING_TYPE: typeName = "string"; break;
-                default: throw std::runtime_error("Expected type (integer, real, boolean, or string)");
-            }
+            std::string typeName = parseTypeName();
             
-            variables.push_back(std::make_shared<VarDeclNode>(names, typeName, isArray, arraySize));
+            variables.push_back(std::make_shared<VarDeclNode>(names, typeName, isArray, arraySize, isMatrix, arrayColumns));
             consume(TokenType::SEMICOLON, "Expected ';' after variable declaration");
         }
     }
@@ -97,7 +139,7 @@ std::shared_ptr<ASTNode> Parser::parseAlgorithm() {
     consume(TokenType::END, "Expected 'end'");
     consume(TokenType::PERIOD, "Expected '.' at end of algorithm");
     
-    return std::make_shared<AlgorithmNode>(name, variables, functions, procedures, block);
+    return std::make_shared<AlgorithmNode>(name, structures, variables, functions, procedures, block);
 }
 
 std::shared_ptr<FunctionNode> Parser::parseFunction() {
@@ -128,15 +170,7 @@ std::shared_ptr<FunctionNode> Parser::parseFunction() {
                 
                 consume(TokenType::COLON, "Expected ':' after parameter name(s)");
                 
-                Token typeToken = advance();
-                std::string typeName;
-                switch (typeToken.type) {
-                    case TokenType::INTEGER: typeName = "integer"; break;
-                    case TokenType::REAL: typeName = "real"; break;
-                    case TokenType::BOOLEAN: typeName = "boolean"; break;
-                    case TokenType::STRING_TYPE: typeName = "string"; break;
-                    default: throw std::runtime_error("Expected type (integer, real, boolean, or string)");
-                }
+                std::string typeName = parseTypeName();
                 
                 // Create a parameter node for each name
                 for (const auto& pName : paramNames) {
@@ -150,15 +184,7 @@ std::shared_ptr<FunctionNode> Parser::parseFunction() {
     
     // Parse return type
     consume(TokenType::COLON, "Expected ':' before return type");
-    Token returnTypeToken = advance();
-    std::string returnType;
-    switch (returnTypeToken.type) {
-        case TokenType::INTEGER: returnType = "integer"; break;
-        case TokenType::REAL: returnType = "real"; break;
-        case TokenType::BOOLEAN: returnType = "boolean"; break;
-        case TokenType::STRING_TYPE: returnType = "string"; break;
-        default: throw std::runtime_error("Expected return type (integer, real, boolean, or string)");
-    }
+    std::string returnType = parseTypeName();
     
     // Parse local variables
     std::vector<std::shared_ptr<VarDeclNode>> localVars;
@@ -170,18 +196,32 @@ std::shared_ptr<FunctionNode> Parser::parseFunction() {
                 names.push_back(consume(TokenType::IDENTIFIER, "Expected variable name").value);
             }
             consume(TokenType::COLON, "Expected ':' after variable name(s)");
-            
-            Token typeToken = advance();
-            std::string typeName;
-            switch (typeToken.type) {
-                case TokenType::INTEGER: typeName = "integer"; break;
-                case TokenType::REAL: typeName = "real"; break;
-                case TokenType::BOOLEAN: typeName = "boolean"; break;
-                case TokenType::STRING_TYPE: typeName = "string"; break;
-                default: throw std::runtime_error("Expected type (integer, real, boolean, or string)");
+
+            bool isArray = false;
+            int arraySize = 0;
+            bool isMatrix = false;
+            int arrayColumns = 0;
+
+            if (match(TokenType::ARRAY)) {
+                isArray = true;
+                consume(TokenType::LBRACKET, "Expected '[' after 'array'");
+                Token sizeToken = consume(TokenType::NUMBER, "Expected array size");
+                arraySize = std::stoi(sizeToken.value);
+                consume(TokenType::RBRACKET, "Expected ']' after array size");
+
+                if (match(TokenType::LBRACKET)) {
+                    isMatrix = true;
+                    Token colToken = consume(TokenType::NUMBER, "Expected matrix column size");
+                    arrayColumns = std::stoi(colToken.value);
+                    consume(TokenType::RBRACKET, "Expected ']' after matrix column size");
+                }
+
+                consume(TokenType::OF, "Expected 'of' after array declaration");
             }
             
-            localVars.push_back(std::make_shared<VarDeclNode>(names, typeName));
+            std::string typeName = parseTypeName();
+            
+            localVars.push_back(std::make_shared<VarDeclNode>(names, typeName, isArray, arraySize, isMatrix, arrayColumns));
             consume(TokenType::SEMICOLON, "Expected ';' after variable declaration");
         }
     }
@@ -229,15 +269,7 @@ std::shared_ptr<ProcedureNode> Parser::parseProcedure() {
                 
                 consume(TokenType::COLON, "Expected ':' after parameter name(s)");
                 
-                Token typeToken = advance();
-                std::string typeName;
-                switch (typeToken.type) {
-                    case TokenType::INTEGER: typeName = "integer"; break;
-                    case TokenType::REAL: typeName = "real"; break;
-                    case TokenType::BOOLEAN: typeName = "boolean"; break;
-                    case TokenType::STRING_TYPE: typeName = "string"; break;
-                    default: throw std::runtime_error("Expected type (integer, real, boolean, or string)");
-                }
+                std::string typeName = parseTypeName();
                 
                 // Create a parameter node for each name
                 for (const auto& pName : paramNames) {
@@ -259,18 +291,32 @@ std::shared_ptr<ProcedureNode> Parser::parseProcedure() {
                 names.push_back(consume(TokenType::IDENTIFIER, "Expected variable name").value);
             }
             consume(TokenType::COLON, "Expected ':' after variable name(s)");
-            
-            Token typeToken = advance();
-            std::string typeName;
-            switch (typeToken.type) {
-                case TokenType::INTEGER: typeName = "integer"; break;
-                case TokenType::REAL: typeName = "real"; break;
-                case TokenType::BOOLEAN: typeName = "boolean"; break;
-                case TokenType::STRING_TYPE: typeName = "string"; break;
-                default: throw std::runtime_error("Expected type (integer, real, boolean, or string)");
+
+            bool isArray = false;
+            int arraySize = 0;
+            bool isMatrix = false;
+            int arrayColumns = 0;
+
+            if (match(TokenType::ARRAY)) {
+                isArray = true;
+                consume(TokenType::LBRACKET, "Expected '[' after 'array'");
+                Token sizeToken = consume(TokenType::NUMBER, "Expected array size");
+                arraySize = std::stoi(sizeToken.value);
+                consume(TokenType::RBRACKET, "Expected ']' after array size");
+
+                if (match(TokenType::LBRACKET)) {
+                    isMatrix = true;
+                    Token colToken = consume(TokenType::NUMBER, "Expected matrix column size");
+                    arrayColumns = std::stoi(colToken.value);
+                    consume(TokenType::RBRACKET, "Expected ']' after matrix column size");
+                }
+
+                consume(TokenType::OF, "Expected 'of' after array declaration");
             }
             
-            localVars.push_back(std::make_shared<VarDeclNode>(names, typeName));
+            std::string typeName = parseTypeName();
+            
+            localVars.push_back(std::make_shared<VarDeclNode>(names, typeName, isArray, arraySize, isMatrix, arrayColumns));
             consume(TokenType::SEMICOLON, "Expected ';' after variable declaration");
         }
     }
@@ -332,7 +378,6 @@ std::shared_ptr<StatementNode> Parser::parseStatement() {
     if (check(TokenType::IDENTIFIER)) {
         // Save position
         size_t savedPos = current;
-        std::string identifier = peek().value;
         advance();
         
         if (check(TokenType::ASSIGN)) {
@@ -376,18 +421,28 @@ std::shared_ptr<StatementNode> Parser::parseStatement() {
 
 std::shared_ptr<AssignmentNode> Parser::parseAssignment() {
     std::string identifier = consume(TokenType::IDENTIFIER, "Expected identifier").value;
+
+    while (match(TokenType::PERIOD)) {
+        identifier += "." + consume(TokenType::IDENTIFIER, "Expected field name after '.'").value;
+    }
     
     std::shared_ptr<ExpressionNode> arrayIndex = nullptr;
+    std::shared_ptr<ExpressionNode> matrixIndex = nullptr;
     
     // Check for array indexing
     if (match(TokenType::LBRACKET)) {
         arrayIndex = parseExpression();
         consume(TokenType::RBRACKET, "Expected ']' after array index");
+
+        if (match(TokenType::LBRACKET)) {
+            matrixIndex = parseExpression();
+            consume(TokenType::RBRACKET, "Expected ']' after matrix index");
+        }
     }
     
     consume(TokenType::ASSIGN, "Expected ':=' for assignment");
     auto expr = parseExpression();
-    return std::make_shared<AssignmentNode>(identifier, expr, arrayIndex);
+    return std::make_shared<AssignmentNode>(identifier, expr, arrayIndex, matrixIndex);
 }
 
 std::shared_ptr<ReturnStatementNode> Parser::parseReturnStatement() {
@@ -446,6 +501,9 @@ std::shared_ptr<RepeatStatementNode> Parser::parseRepeatStatement() {
 std::shared_ptr<ReadStatementNode> Parser::parseReadStatement() {
     consume(TokenType::LPAREN, "Expected '(' after read");
     std::string varName = consume(TokenType::IDENTIFIER, "Expected variable name in read").value;
+    while (match(TokenType::PERIOD)) {
+        varName += "." + consume(TokenType::IDENTIFIER, "Expected field name after '.'").value;
+    }
     consume(TokenType::RPAREN, "Expected ')' after read variable");
     return std::make_shared<ReadStatementNode>(varName);
 }
@@ -547,6 +605,10 @@ std::shared_ptr<ExpressionNode> Parser::parsePrimary() {
     }
     if (match(TokenType::IDENTIFIER)) {
         std::string name = previous().value;
+
+        while (match(TokenType::PERIOD)) {
+            name += "." + consume(TokenType::IDENTIFIER, "Expected field name after '.'").value;
+        }
         
         // Check if it's a function call
         if (match(TokenType::LPAREN)) {
@@ -564,7 +626,14 @@ std::shared_ptr<ExpressionNode> Parser::parsePrimary() {
         if (match(TokenType::LBRACKET)) {
             auto index = parseExpression();
             consume(TokenType::RBRACKET, "Expected ']' after array index");
-            return std::make_shared<ArrayAccessNode>(name, index);
+
+            std::shared_ptr<ExpressionNode> secondIndex = nullptr;
+            if (match(TokenType::LBRACKET)) {
+                secondIndex = parseExpression();
+                consume(TokenType::RBRACKET, "Expected ']' after matrix index");
+            }
+
+            return std::make_shared<ArrayAccessNode>(name, index, secondIndex);
         }
         
         // It's a variable

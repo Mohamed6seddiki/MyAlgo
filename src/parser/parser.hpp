@@ -18,6 +18,8 @@ private:
     bool check(TokenType type) const;
     bool match(TokenType type);
     Token consume(TokenType type, const std::string& message);
+    std::string parseTypeName();
+    std::shared_ptr<StructDeclNode> parseStructure();
 
     std::shared_ptr<ASTNode> parseAlgorithm();
     std::shared_ptr<FunctionNode> parseFunction();

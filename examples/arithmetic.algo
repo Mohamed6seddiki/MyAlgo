@@ -1,0 +1,18 @@
+algorithm SimpleArithmetic
+var
+    a, b, sum, product: integer;
+begin
+    a := 10;
+    b := 20;
+    sum := a + b;
+    product := a * b;
+
+    write("a:");
+    write(a);
+    write("b:");
+    write(b);
+    write("sum:");
+    write(sum);
+    write("product:");
+    write(product);
+end.

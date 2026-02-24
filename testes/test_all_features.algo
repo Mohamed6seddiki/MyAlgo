@@ -1,0 +1,123 @@
+algorithm TestAllFeatures
+
+structure Student
+    name: string;
+    age: integer;
+    grade: real;
+endstructure
+
+var
+    x, y, z: integer;
+    i, j: integer;
+    sum: integer;
+    average: real;
+    isPassed: boolean;
+    message: string;
+    nums: array[5] of integer;
+    mat: array[2][3] of integer;
+    st: Student;
+
+function add(a: integer, b: integer): integer
+beginfunction
+    return a + b;
+endfunction
+
+function avg3(a: integer, b: integer, c: integer): real
+var
+    total: real;
+beginfunction
+    total := a + b + c;
+    return total / 3.0;
+endfunction
+
+procedure swap(var a: integer, var b: integer)
+var
+    temp: integer;
+beginprocedure
+    temp := a;
+    a := b;
+    b := temp;
+endprocedure
+
+procedure printStudent(s: Student)
+beginprocedure
+    write("Student:");
+    write(s.name);
+    write("Age:");
+    write(s.age);
+    write("Grade:");
+    write(s.grade);
+endprocedure
+
+begin
+    x := 10;
+    y := 20;
+    z := add(x, y);
+    write("z = ");
+    write(z);
+
+    average := avg3(10, 20, 30);
+    write("average = ");
+    write(average);
+
+    nums[0] := 1;
+    nums[1] := 2;
+    nums[2] := 3;
+    nums[3] := 4;
+    nums[4] := 5;
+
+    sum := 0;
+    for i from 0 to 4 do
+        sum := sum + nums[i];
+    endfor
+    write("sum(nums) = ");
+    write(sum);
+
+    for i from 0 to 1 do
+        for j from 0 to 2 do
+            mat[i][j] := i * 10 + j;
+        endfor
+    endfor
+
+    write("matrix values:");
+    for i from 0 to 1 do
+        for j from 0 to 2 do
+            write(mat[i][j]);
+        endfor
+    endfor
+
+    isPassed := (average >= 15) and not (sum < 10);
+
+    if isPassed then
+        message := "PASS";
+    else
+        message := "FAIL";
+    endif
+
+    write("status:");
+    write(message);
+
+    i := 0;
+    while i < 3 do
+        write("while i:");
+        write(i);
+        i := i + 1;
+    endwhile
+
+    repeat
+        i := i - 1;
+        write("repeat i:");
+        write(i);
+    until i = 0
+
+    swap(x, y);
+    write("after swap x:");
+    write(x);
+    write("after swap y:");
+    write(y);
+
+    st.name := "Alice";
+    st.age := 22;
+    st.grade := average;
+    printStudent(st);
+end.

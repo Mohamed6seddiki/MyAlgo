@@ -1,0 +1,18 @@
+algorithm FactorialDemo
+var
+    result: integer;
+
+function Factorial(n: integer): integer
+beginfunction
+    if n <= 1 then
+        return 1;
+    else
+        return n * Factorial(n - 1);
+    endif
+endfunction
+
+begin
+    result := Factorial(5);
+    write("5!:");
+    write(result);
+end.

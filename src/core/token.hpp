@@ -13,6 +13,8 @@ enum class TokenType {
 
     // Keywords - Program structure
     ALGORITHM,    // algorithm
+    STRUCTURE,    // structure
+    ENDSTRUCTURE, // endstructure
     VAR,          // var
     BEGIN,        // begin
     END,          // end
@@ -37,6 +39,7 @@ enum class TokenType {
     // Keywords - I/O
     READ,         // read
     WRITE,        // write
+    PRINT,        // print
 
     // Keywords - Control flow
     IF,           // if

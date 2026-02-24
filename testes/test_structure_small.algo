@@ -1,0 +1,16 @@
+algorithm TestStructureSmall
+structure Point
+    x: integer;
+    y: integer;
+endstructure
+
+var
+    p: Point;
+begin
+    p.x := 10;
+    p.y := 20;
+    write("point x:");
+    write(p.x);
+    write("point y:");
+    write(p.y);
+end.

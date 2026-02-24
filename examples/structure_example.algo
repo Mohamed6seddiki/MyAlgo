@@ -1,0 +1,12 @@
+algorithm StructureDemo
+structure Person
+    age: integer;
+endstructure
+
+var
+    person: Person;
+begin
+    person.age := 30;
+    write("age:");
+    write(person.age);
+end.

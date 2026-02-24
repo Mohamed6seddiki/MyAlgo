@@ -1,0 +1,14 @@
+algorithm TestMatrixSmall
+var
+    m: array[2][2] of integer;
+    total: integer;
+begin
+    m[0][0] := 1;
+    m[0][1] := 2;
+    m[1][0] := 3;
+    m[1][1] := 4;
+
+    total := m[0][0] + m[0][1] + m[1][0] + m[1][1];
+    write("matrix total:");
+    write(total);
+end.

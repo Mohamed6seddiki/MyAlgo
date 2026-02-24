@@ -1,0 +1,11 @@
+algorithm CountDown
+var
+    n: integer;
+begin
+    n := 5;
+    while n > 0 do
+        write(n);
+        n := n - 1;
+    endwhile
+    write("blastoff");
+end.

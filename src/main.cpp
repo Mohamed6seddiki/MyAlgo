@@ -25,6 +25,8 @@ string tokenTypeToString(TokenType type) {
         case TokenType::NUMBER: return "NUMBER";
         case TokenType::STRING: return "STRING";
         case TokenType::ALGORITHM: return "ALGORITHM";
+        case TokenType::STRUCTURE: return "STRUCTURE";
+        case TokenType::ENDSTRUCTURE: return "ENDSTRUCTURE";
         case TokenType::VAR: return "VAR";
         case TokenType::BEGIN: return "BEGIN";
         case TokenType::END: return "END";
@@ -88,7 +90,7 @@ string tokenTypeToString(TokenType type) {
 }
 
 int main(int argc, char* argv[]) {
-    cout << "=== MyAlgo Compiler ===" << endl;
+    //cout << "=== MyAlgo Compiler ===" << endl;
     
     if (argc < 2) {
         cerr << "Usage: " << argv[0] << " <filename.algo>" << endl;
@@ -106,14 +108,14 @@ int main(int argc, char* argv[]) {
     buffer << file.rdbuf();
     string sourceCode = buffer.str();
     
-    cout << "Source code loaded (" << sourceCode.length() << " characters)" << endl;
+    //cout << "Source code loaded (" << sourceCode.length() << " characters)" << endl;
 
     try {
         // Lexical analysis
-        cout << "\n1. Running lexical analysis..." << endl;
+       // cout << "\n1. Running lexical analysis..." << endl;
         Lexer lexer(sourceCode);
         vector<Token> tokens = lexer.tokenize();
-        cout << "   Generated " << tokens.size() << " tokens" << endl;
+       // cout << "   Generated " << tokens.size() << " tokens" << endl;
 
         // Optional: Print tokens for debugging
         // cout << "\nTokens:" << endl;
@@ -122,7 +124,7 @@ int main(int argc, char* argv[]) {
         // }
 
         // Syntactic analysis
-        cout << "\n2. Running syntactic analysis..." << endl;
+       // cout << "\n2. Running syntactic analysis..." << endl;
         Parser parser(tokens);
         shared_ptr<ASTNode> ast = parser.parse();
         
@@ -130,14 +132,14 @@ int main(int argc, char* argv[]) {
             cerr << "Parsing failed!" << endl;
             return 1;
         }
-        cout << "   Parsing successful!" << endl;
+        //cout << "   Parsing successful!" << endl;
 
         // Optional: Print AST for debugging
         // cout << "\nAST Structure:" << endl;
         // parser.printAST(ast);
 
         // Semantic analysis
-        cout << "\n3. Running semantic analysis..." << endl;
+       // cout << "\n3. Running semantic analysis..." << endl;
         SemanticAnalyzer semanticAnalyzer;
         bool semanticOK = semanticAnalyzer.analyze(ast);
         semanticAnalyzer.printErrors();
@@ -146,13 +148,13 @@ int main(int argc, char* argv[]) {
             cerr << "Semantic analysis failed!" << endl;
             return 1;
         }
-        cout << "   Semantic analysis successful!" << endl;
+       // cout << "   Semantic analysis successful!" << endl;
 
         // Optional: Print symbol tables
         // semanticAnalyzer.printSymbolTables();
 
         // Code generation
-        cout << "\n4. Running code generation..." << endl;
+       // cout << "\n4. Running code generation..." << endl;
         string inputFilename = argv[1];
         string outputFilename;
         
@@ -171,12 +173,12 @@ int main(int argc, char* argv[]) {
             return 1;
         }
         
-        cout << "\n=== COMPILATION SUCCESS ===" << endl;
-        cout << "Output file: " << outputFilename << endl;
-        cout << "==========================" << endl;
+        //cout << "\n=== COMPILATION SUCCESS ===" << endl;
+        //cout << "Output file: " << outputFilename << endl;
+        //cout << "==========================" << endl;
 
         // Compile and run the generated C++ code
-        cout << "\n=== Compiling and running generated code ===" << endl;
+       // cout << "\n=== Compiling and running generated code ===" << endl;
         
         string cppFile = outputFilename;
         string baseName = outputFilename.substr(0, outputFilename.find_last_of("."));
@@ -184,7 +186,7 @@ int main(int argc, char* argv[]) {
         
         // Compile the C++ code
         string compileCmd = "g++ -std=c++11 \"" + cppFile + "\" -o \"" + exeFile + "\"";
-        cout << "Compiling: " << compileCmd << endl;
+        //cout << "Compiling: " << compileCmd << endl;
         
         int compileResult = system(compileCmd.c_str());
         if (compileResult != 0) {
@@ -194,7 +196,7 @@ int main(int argc, char* argv[]) {
         }
         
         // Run the executable
-        cout << "\n=== Program Output ===" << endl;
+        //cout << "\n=== Program Output ===" << endl;
         string runCmd;
         #ifdef _WIN32
             runCmd = "\"" + exeFile + "\"";
@@ -208,7 +210,7 @@ int main(int argc, char* argv[]) {
             cerr << "Program exited with error code: " << runResult << endl;
         }
         
-        cout << "\n========================" << endl;
+        //cout << "\n========================" << endl;
         
     } catch (const runtime_error& e) {
         cerr << "\n=== COMPILATION ERROR ===" << endl;
