@@ -1,12 +1,16 @@
 algorithm StructureDemo
 structure Person
+    name : string;
     age: integer;
 endstructure
 
 var
     person: Person;
 begin
-    person.age := 30;
-    write("age:");
+    person.name := Melissa;
+    person.age := 19;
+    write("Name :");
+    write(person.name);
+    write("Age:");
     write(person.age);
 end.
